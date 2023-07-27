@@ -78,7 +78,7 @@ async function setupLocalChrome() {
   debug(
     "Setup local chrome with zipPath and setupPath",
     localChromePath,
-    setupChromePath,
+    setupChromePath
   );
   try {
     const zipPath = resolve(localChromePath);

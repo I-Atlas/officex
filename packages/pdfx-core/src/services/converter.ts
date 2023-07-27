@@ -22,9 +22,13 @@ export async function convert(
 
   const page = await browser.newPage();
   await page.emulateMediaType("screen");
+  await page.setJavaScriptEnabled(false);
   const response = await page.goto(url, {
     waitUntil: "networkidle0",
     timeout: LOADING_TIMEOUT,
+  });
+  page.on("dialog", async (dialog) => {
+    await dialog.dismiss();
   });
 
   if (!response) {
