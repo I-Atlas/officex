@@ -1,0 +1,55 @@
+{
+  "name": "@pdfx/cli",
+  "version": "1.0.0",
+  "license": "LGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/I-Atlas/pdfx.git"
+  },
+  "keywords": [
+    "pdf",
+    "html",
+    "converter",
+    "extractor",
+    "scrapper",
+    "parser"
+  ],
+  "author": "I-Atlas",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "build:watch": "webpack -w --mode=development",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/clear": "^0.1.2",
+    "@types/clui": "^0.3.1",
+    "@types/figlet": "^1.5.6",
+    "@types/inquirer": "^9.0.3",
+    "clear": "^0.1.0",
+    "clui": "^0.3.6",
+    "figlet": "^1.6.0",
+    "inquirer": "^9.2.8",
+    "chalk": "^5.3.0",
+    "@pdfx/core": "^1.0.0"
+  },
+  "jest": {
+    "projects": [
+      "src"
+    ],
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.js$",
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "collectCoverage": true
+  }
+}
