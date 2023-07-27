@@ -1,6 +1,6 @@
 {
   "name": "@pdfx/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "LGPL-3.0-only",
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
     "figlet": "^1.6.0",
     "inquirer": "^9.2.8",
     "chalk": "^5.3.0",
-    "@pdfx/core": "^1.0.0"
+    "@pdfx/core": "^1.0.1"
   },
   "jest": {
     "projects": [
