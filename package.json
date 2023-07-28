@@ -1,7 +1,7 @@
 {
-  "name": "pdfx-monorepo",
+  "name": "officex-monorepo",
   "version": "1.0.0",
-  "description": "HTML to PDF converter for Node.js",
+  "description": "HTML to PDF, PNG, DOCX converter for Node.js",
   "private": true,
   "packageManager": "yarn@1.22.19",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/I-Atlas/pdfx.git"
+    "url": "git+https://github.com/I-Atlas/officex.git"
   },
   "keywords": [
     "pdf",
@@ -26,9 +26,9 @@
   "author": "I-Atlas",
   "license": "LGPL-3.0-only",
   "bugs": {
-    "url": "https://github.com/I-Atlas/pdfx/issues"
+    "url": "https://github.com/I-Atlas/officex/issues"
   },
-  "homepage": "https://github.com/I-Atlas/pdfx#readme",
+  "homepage": "https://github.com/I-Atlas/officex#readme",
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@turbo/gen": "^1.9.7",
@@ -45,6 +45,7 @@
     "webpack-cli": "^5.1.4"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ]
 }

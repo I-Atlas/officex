@@ -27,7 +27,7 @@ module.exports = {
   output: {
     filename: "index.js",
     path: path.resolve(__dirname, "dist"),
-    library: "@pdfx/core",
+    library: "@officex/core",
     libraryTarget: "umd",
   },
 };

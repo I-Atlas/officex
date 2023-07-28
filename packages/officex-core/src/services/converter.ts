@@ -1,11 +1,20 @@
 import { debug } from "./logger";
-import { IConverterConfig, PDFX_FORMATS } from "../models/pdfx.model";
+import { IConverterConfig, OFFICEX_FORMATS } from "../models/officex.model";
 import {
   MOBILE_USERAGENT,
   MOBILE_DIMENSION,
   LOADING_TIMEOUT,
 } from "../config/config";
 import { Browser, PDFOptions } from "puppeteer";
+import { Readability } from "@mozilla/readability";
+import { sanitize } from "isomorphic-dompurify";
+import { JSDOM } from "jsdom";
+
+function readable(document: Document) {
+  const reader = new Readability(document);
+  const article = reader.parse();
+  return article;
+}
 
 export async function convert(
   browser: Browser,
@@ -37,7 +46,7 @@ export async function convert(
   }
   debug(`Page gone to ${url} with status ${response.status()}`);
 
-  const formatConfig = PDFX_FORMATS[extension];
+  const formatConfig = OFFICEX_FORMATS[extension];
 
   const config = {
     path: flushToDisk ? `${outputFile}${formatConfig.extension}` : undefined,
@@ -73,6 +82,22 @@ export async function convert(
     debug("Start PNG conversion with config", pngConfig);
 
     result = await page.screenshot(pngConfig);
+  } else if (extension === "TXT") {
+    debug("Start TXT conversion with config");
+    const dom = new JSDOM(``, {
+      url: url,
+      referrer: url,
+      contentType: "text/html",
+      includeNodeLocations: true,
+      storageQuota: 10000000,
+    });
+    const parsed = readable(dom.window.document);
+    if (!parsed) {
+      throw new Error(`Document not parsed ${extension}`);
+    }
+    const markup = sanitize(parsed.content);
+    const buff = Buffer.from(markup, "utf-8");
+    result = buff;
   } else {
     throw new Error(`Unsupported format ${extension}`);
   }

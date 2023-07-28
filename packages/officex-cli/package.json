@@ -1,10 +1,10 @@
 {
-  "name": "@pdfx/cli",
-  "version": "1.0.1",
+  "name": "@officex/cli",
+  "version": "1.0.0",
   "license": "LGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/I-Atlas/pdfx.git"
+    "url": "git+https://github.com/I-Atlas/officex.git"
   },
   "keywords": [
     "pdf",
@@ -18,25 +18,35 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "typings": "dist/index.d.ts",
+  "type": "module",
+  "main": "dist/esm/*.js",
+  "module": "dist/esm/*.js",
+  "typings": "dist/types/*.d.t",
+  "exports": {
+    "./*": {
+      "types": "./dist/types/*.d.ts",
+      "require": "./dist/cjs/*.js",
+      "import": "./dist/esm/*.js",
+      "default": "./dist/esm/*.js"
+    }
+  },
   "scripts": {
-    "build": "rimraf dist && tsc",
-    "build:watch": "webpack -w --mode=development",
+    "build": "rimraf dist && tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {
-    "@types/clear": "^0.1.2",
-    "@types/clui": "^0.3.1",
-    "@types/figlet": "^1.5.6",
-    "@types/inquirer": "^9.0.3",
+  "dependencies": {
     "clear": "^0.1.0",
     "clui": "^0.3.6",
     "figlet": "^1.6.0",
     "inquirer": "^9.2.8",
     "chalk": "^5.3.0",
-    "@pdfx/core": "^1.0.1"
+    "@officex/core": "*"
+  },
+  "devDependencies": {
+    "@types/clear": "^0.1.2",
+    "@types/clui": "^0.3.1",
+    "@types/figlet": "^1.5.6",
+    "@types/inquirer": "^9.0.3"
   },
   "jest": {
     "projects": [
