@@ -25,8 +25,23 @@ export async function convert(
     flushToDisk,
     extension,
     mobileViewport,
-  }: IConverterConfig,
-) {
+  }: IConverterConfig
+): Promise<Buffer> {
+  if (extension === "TXT") {
+    debug("Start TXT conversion with config");
+    const dom = new JSDOM(``, {
+      url: url,
+    });
+    const parsed = readable(dom.window.document);
+    if (!parsed) {
+      throw new Error(`Document not parsed`);
+    }
+    const markup = sanitize(parsed.content);
+    const buff = Buffer.from(markup, "utf-8");
+    debug("Conversion done !");
+    return buff;
+  }
+
   debug("Attempt to get browser");
 
   const page = await browser.newPage();
@@ -82,22 +97,6 @@ export async function convert(
     debug("Start PNG conversion with config", pngConfig);
 
     result = await page.screenshot(pngConfig);
-  } else if (extension === "TXT") {
-    debug("Start TXT conversion with config");
-    const dom = new JSDOM(``, {
-      url: url,
-      referrer: url,
-      contentType: "text/html",
-      includeNodeLocations: true,
-      storageQuota: 10000000,
-    });
-    const parsed = readable(dom.window.document);
-    if (!parsed) {
-      throw new Error(`Document not parsed ${extension}`);
-    }
-    const markup = sanitize(parsed.content);
-    const buff = Buffer.from(markup, "utf-8");
-    result = buff;
   } else {
     throw new Error(`Unsupported format ${extension}`);
   }

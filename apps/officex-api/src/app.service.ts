@@ -1,11 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import {
-  convert,
-  getBrowser,
-  debug,
-  IConverterConfig,
-  OFFICEX_FORMATS,
-} from '@officex/core';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { convert, getBrowser, IConverterConfig } from '@officex/core';
 
 const DEFAULT_CONFIG: IConverterConfig = {
   url: 'https://google.fr',
@@ -18,11 +12,12 @@ const DEFAULT_CONFIG: IConverterConfig = {
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
-  }
-
   async convertWebpage(config: IConverterConfig = DEFAULT_CONFIG) {
-    return await convert(await getBrowser(), config);
+    try {
+      return await convert(await getBrowser(), config);
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(error, HttpStatus.I_AM_A_TEAPOT);
+    }
   }
 }

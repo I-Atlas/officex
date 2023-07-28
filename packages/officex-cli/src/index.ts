@@ -10,7 +10,7 @@ import { askConversionConfig } from "./inquirer";
 clear();
 
 console.log(
-  chalk.yellow(figlet.textSync("OFFICEX", { horizontalLayout: "full" })),
+  chalk.yellow(figlet.textSync("OFFICEX", { horizontalLayout: "full" }))
 );
 
 export const run = async () => {
@@ -24,7 +24,7 @@ export const run = async () => {
   } catch (error) {
     clear();
     console.log(
-      chalk.red(figlet.textSync("ERROR", { horizontalLayout: "full" })),
+      chalk.red(figlet.textSync("ERROR", { horizontalLayout: "full" }))
     );
   }
 };

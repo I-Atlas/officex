@@ -1,12 +1,24 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { IConverterConfig } from '@officex/core';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Post('convert')
+  @ApiResponse({
+    status: 201,
+    description: 'Webpage converted successfully',
+    type: Buffer,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  async convertWebpage(@Body() config: IConverterConfig): Promise<Buffer> {
+    return await this.appService.convertWebpage(config);
   }
 }
