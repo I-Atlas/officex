@@ -37,7 +37,6 @@ export const getBrowser = (() => {
         debug("Local Chrome setuped");
       }
       const puppeteerConfig: PuppeteerLaunchOptions = {
-        headless: true,
         args: [
           // error when launch(); No usable sandbox! Update your kernel
           "--no-sandbox",
@@ -78,7 +77,7 @@ async function setupLocalChrome() {
   debug(
     "Setup local chrome with zipPath and setupPath",
     localChromePath,
-    setupChromePath
+    setupChromePath,
   );
   try {
     const zipPath = resolve(localChromePath);

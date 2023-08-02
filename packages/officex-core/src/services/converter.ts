@@ -6,15 +6,14 @@ import {
   LOADING_TIMEOUT,
 } from "../config/config";
 import { Browser, PDFOptions } from "puppeteer";
-import { Readability } from "@mozilla/readability";
-import { sanitize } from "isomorphic-dompurify";
-import { JSDOM } from "jsdom";
+// import { Readability } from "@mozilla/readability";
+// import { sanitize } from "isomorphic-dompurify";
 
-function readable(document: Document) {
-  const reader = new Readability(document);
-  const article = reader.parse();
-  return article;
-}
+// function readable(document: Document) {
+//   const reader = new Readability(document);
+//   const article = reader.parse();
+//   return article;
+// }
 
 export async function convert(
   browser: Browser,
@@ -25,23 +24,8 @@ export async function convert(
     flushToDisk,
     extension,
     mobileViewport,
-  }: IConverterConfig
+  }: IConverterConfig,
 ): Promise<Buffer> {
-  if (extension === "TXT") {
-    debug("Start TXT conversion with config");
-    const dom = new JSDOM(``, {
-      url: url,
-    });
-    const parsed = readable(dom.window.document);
-    if (!parsed) {
-      throw new Error(`Document not parsed`);
-    }
-    const markup = sanitize(parsed.content);
-    const buff = Buffer.from(markup, "utf-8");
-    debug("Conversion done !");
-    return buff;
-  }
-
   debug("Attempt to get browser");
 
   const page = await browser.newPage();
@@ -97,6 +81,36 @@ export async function convert(
     debug("Start PNG conversion with config", pngConfig);
 
     result = await page.screenshot(pngConfig);
+  } else if (extension === "TXT") {
+    const extractedText = await page.$eval("*", (el) => {
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNode(el);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      return window.getSelection()?.toString();
+    });
+
+    if (!extractedText) {
+      throw new Error(`Error while parsed ${extension}`);
+    }
+
+    // const buffer = await page.evaluate(() => {
+    //   const parsed = readable(document);
+    //   if (!parsed) {
+    //     throw new Error(`Document not parsed`);
+    //   }
+    //   const markup = sanitize(parsed.content);
+    //   const buff = Buffer.from(markup, "utf-8");
+    //   return buff;
+    // });
+
+    // if (!buffer) {
+    //   throw new Error(`Error while parsed ${extension}`);
+    // }
+
+    result = Buffer.from(extractedText ?? "", "utf-8");
+    // result = buffer
   } else {
     throw new Error(`Unsupported format ${extension}`);
   }
