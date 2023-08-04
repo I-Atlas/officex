@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { convert, getBrowser, IConverterConfig } from '@officex/core';
 
 const DEFAULT_CONFIG: IConverterConfig = {
-  url: 'https://google.fr',
+  url: 'https://google.com',
   outputFile: 'google.pdf',
   size: 'Letter',
   extension: 'PDF',

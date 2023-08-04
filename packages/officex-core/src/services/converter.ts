@@ -1,19 +1,15 @@
-import { debug } from "./logger";
-import { IConverterConfig, OFFICEX_FORMATS } from "../models/officex.model";
+import { debug, startParsing, errorParsing, finishParsing } from "./logger";
+import { IConverterConfig } from "../types";
 import {
   MOBILE_USERAGENT,
   MOBILE_DIMENSION,
   LOADING_TIMEOUT,
-} from "../config/config";
+  FORMATS,
+} from "../config/constants";
 import { Browser, PDFOptions } from "puppeteer";
-// import { Readability } from "@mozilla/readability";
-// import { sanitize } from "isomorphic-dompurify";
-
-// function readable(document: Document) {
-//   const reader = new Readability(document);
-//   const article = reader.parse();
-//   return article;
-// }
+import { Readability } from "@mozilla/readability";
+import { sanitize } from "isomorphic-dompurify";
+import { JSDOM } from "jsdom";
 
 export async function convert(
   browser: Browser,
@@ -45,7 +41,7 @@ export async function convert(
   }
   debug(`Page gone to ${url} with status ${response.status()}`);
 
-  const formatConfig = OFFICEX_FORMATS[extension];
+  const formatConfig = FORMATS[extension];
 
   const config = {
     path: flushToDisk ? `${outputFile}${formatConfig.extension}` : undefined,
@@ -63,59 +59,85 @@ export async function convert(
   }
 
   let result: Buffer;
-  if (extension === "PDF") {
-    const pdfConfig: PDFOptions = {
-      ...config,
-      format: !mobileViewport ? size : undefined,
-      width: mobileViewport ? `${MOBILE_DIMENSION.width}px` : undefined,
-      height: mobileViewport ? `${MOBILE_DIMENSION.height}px` : undefined,
-      printBackground: true,
-      scale: 0.78,
-      margin: { top: "0", right: "0", bottom: "0", left: "0" },
-    };
-    debug("Start PDF conversion with config", pdfConfig);
 
-    result = await page.pdf(pdfConfig);
-  } else if (extension === "PNG") {
-    const pngConfig = { ...config, fullPage: true };
-    debug("Start PNG conversion with config", pngConfig);
+  switch (extension) {
+    case "PDF": {
+      const pdfConfig: PDFOptions = {
+        ...config,
+        format: !mobileViewport ? size : undefined,
+        width: mobileViewport ? `${MOBILE_DIMENSION.width}px` : undefined,
+        height: mobileViewport ? `${MOBILE_DIMENSION.height}px` : undefined,
+        printBackground: true,
+        scale: 0.78,
+        margin: { top: "0", right: "0", bottom: "0", left: "0" },
+      };
+      startParsing(url, extension, pdfConfig);
 
-    result = await page.screenshot(pngConfig);
-  } else if (extension === "TXT") {
-    const extractedText = await page.$eval("*", (el) => {
-      const selection = window.getSelection();
-      const range = document.createRange();
-      range.selectNode(el);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-      return window.getSelection()?.toString();
-    });
-
-    if (!extractedText) {
-      throw new Error(`Error while parsed ${extension}`);
+      result = await page.pdf(pdfConfig);
+      break;
     }
 
-    // const buffer = await page.evaluate(() => {
-    //   const parsed = readable(document);
-    //   if (!parsed) {
-    //     throw new Error(`Document not parsed`);
-    //   }
-    //   const markup = sanitize(parsed.content);
-    //   const buff = Buffer.from(markup, "utf-8");
-    //   return buff;
-    // });
+    case "TXT": {
+      const txtConfig = { ...config };
+      startParsing(url, extension, txtConfig);
 
-    // if (!buffer) {
-    //   throw new Error(`Error while parsed ${extension}`);
-    // }
+      const extractedText = await page.$eval("*", (el) => {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNode(el);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        return window.getSelection()?.toString();
+      });
 
-    result = Buffer.from(extractedText ?? "", "utf-8");
-    // result = buffer
-  } else {
-    throw new Error(`Unsupported format ${extension}`);
+      if (!extractedText) {
+        errorParsing(url, extension, txtConfig);
+        throw new Error(
+          `Encountered error while parsing ${url} to ${extension}`,
+        );
+      }
+
+      result = Buffer.from(extractedText ?? "", "utf-8");
+      break;
+    }
+
+    case "PNG": {
+      const pngConfig = { ...config, fullPage: true };
+      startParsing(url, extension, pngConfig);
+
+      result = await page.screenshot(pngConfig);
+    }
+
+    case "JSON": {
+      const jsonConfig = { ...config };
+      startParsing(url, extension, jsonConfig);
+
+      const html = await page.evaluate(() => {
+        return document.querySelector("html")?.outerHTML ?? "";
+      });
+
+      const doc = new JSDOM(html, { url: url });
+      const reader = new Readability(doc.window.document);
+      const article = reader.parse();
+
+      if (!article) {
+        errorParsing(url, extension, jsonConfig);
+        throw new Error(
+          `Encountered error while parsing ${url} to ${extension}`,
+        );
+      }
+
+      const sanitized = sanitize(JSON.stringify(article));
+      result = Buffer.from(sanitized, "utf-8");
+      break;
+    }
+
+    default: {
+      throw new Error(`Unsupported format: ${extension}`);
+    }
   }
 
   await browser.close();
-  debug("Conversion done !");
+  finishParsing(url, extension);
   return result;
 }

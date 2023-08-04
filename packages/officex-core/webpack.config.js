@@ -18,6 +18,11 @@ module.exports = {
       commonjs2: "puppeteer",
       amd: "puppeteer",
     },
+    jsdom: {
+      commonjs: "jsdom",
+      commonjs2: "jsdom",
+      amd: "jsdom",
+    },
   },
   resolve: {
     modules: ["node_modules"],

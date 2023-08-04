@@ -12,12 +12,12 @@ import { Extract } from "unzipper";
 import puppeteer, { Browser, PuppeteerLaunchOptions } from "puppeteer";
 
 import {
-  localChromePath,
-  setupChromePath,
-  executablePath,
+  LOCAL_CHROME_PATH,
+  SETUP_CHROME_PATH,
+  EXECUTABLE_PATH,
   DEBUG,
   WITH_LOCAL_CHROME,
-} from "./config/config";
+} from "./config/constants";
 import { debug } from "./services/logger";
 
 const statPromise = promisify(stat);
@@ -48,9 +48,9 @@ export const getBrowser = (() => {
         dumpio: DEBUG,
         headless: "new",
         pipe: true,
-        ...(WITH_LOCAL_CHROME ? { executablePath } : null),
+        ...(WITH_LOCAL_CHROME ? { EXECUTABLE_PATH } : null),
       };
-      debug(puppeteerConfig);
+      debug("Puppeteer config: ", puppeteerConfig);
       browser = await puppeteer.launch(puppeteerConfig);
       const browserVersion = await browser.version();
       debug(`launch done: ${browserVersion}`);
@@ -70,19 +70,19 @@ async function isBrowserAvailable(browser: Browser) {
 }
 
 async function setupLocalChrome() {
-  const exists = await existsPromise(executablePath);
+  const exists = await existsPromise(EXECUTABLE_PATH);
   if (exists) {
-    debug("Executable Chrome already exists with path", executablePath);
+    debug("Executable Chrome already exists with path", EXECUTABLE_PATH);
     return;
   }
   debug(
     "Setup local chrome with zipPath and setupPath",
-    localChromePath,
-    setupChromePath,
+    LOCAL_CHROME_PATH,
+    SETUP_CHROME_PATH,
   );
   try {
-    const zipPath = resolve(localChromePath);
-    const outPath = resolve(setupChromePath);
+    const zipPath = resolve(LOCAL_CHROME_PATH);
+    const outPath = resolve(SETUP_CHROME_PATH);
 
     const inStats = await statPromise(zipPath);
     if (!inStats.isFile()) {
@@ -98,7 +98,7 @@ async function setupLocalChrome() {
       .pipe(Extract({ path: outPath }))
       .promise();
 
-    await chmodPromise(executablePath, 100);
+    await chmodPromise(EXECUTABLE_PATH, 100);
   } catch (err) {
     throw new Error(err);
   }
