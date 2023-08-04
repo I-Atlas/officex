@@ -46,6 +46,7 @@ export const getBrowser = (() => {
           // "--single-process",
         ],
         dumpio: DEBUG,
+        headless: "new",
         pipe: true,
         ...(WITH_LOCAL_CHROME ? { executablePath } : null),
       };

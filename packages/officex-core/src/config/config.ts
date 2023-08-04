@@ -1,8 +1,8 @@
-import { join, sep } from "node:path";
+import * as path from "node:path";
 
-export const localChromePath = join("headless-chromium.zip");
-export const setupChromePath = join(sep, "tmp");
-export const executablePath = join(setupChromePath, "headless-chromium");
+export const localChromePath = path.join("headless-chromium.zip");
+export const setupChromePath = path.join(path.sep, "tmp");
+export const executablePath = path.join(setupChromePath, "headless-chromium");
 
 export const DEBUG = !!process.env.DEBUG;
 export const WITH_LOCAL_CHROME = !!process.env.LOCAL_CHROME;

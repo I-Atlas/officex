@@ -8,7 +8,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post('convert')
+  @Post('/v1/ai/convert-document')
   @ApiResponse({
     status: 201,
     description: 'Webpage converted successfully',
